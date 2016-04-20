@@ -70,8 +70,8 @@ Now you have a model which you can use to predict on new data. To do this we are
 going to be running beam search
 
 ```
-th beam.lua -srcfile demo/src-val.txt -outfile pred.txt -srcdict demo/demo.src.dict
--targdict demo.targ.dict
+th beam.lua -model demo-model_final.t7 -src_file data/src-val.txt -output_file pred.txt \
+-src_dict data/demo.src.dict -targ_dict data/demo.targ.dict
 ```
 This will output predictions into `pred.txt`. The predictions are going to be quite terrible,
 as the demo dataset is small. Try running on some larger datasets! For example you can download
