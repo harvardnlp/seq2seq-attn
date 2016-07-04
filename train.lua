@@ -50,7 +50,7 @@ cmd:option('-init_dec', 1, [[Initialize the hidden/cell state of the decoder at 
                            the initial states of the decoder are set to zero vectors]])
 cmd:option('-input_feed', 1, [[If = 1, feed the context vector at each time step as additional
                              input (vica concatenation with the word embeddings) to the decoder]])
-cmd:option('-multi_attn', 0, [[If > 0, then use a another attention layer on this layer of 
+cmd:option('-multi_attn', 0, [[If > 0, then use another attention layer on this layer of
                            the decoder. For example, if num_layers = 3 and `multi_attn = 2`, 
                            then the model will do an attention over the source sequence
                            on the second layer (and use that as input to the third layer) and 
