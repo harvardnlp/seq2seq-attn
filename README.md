@@ -24,8 +24,14 @@ Feel free to post any questions/issues on the issues page.
 * h5py
 * numpy
 
+Install these packages by running the following command from the project's root:
+```bash
+pip install -r py_requirements.txt
+```
+
 #### Lua 
 You will need the following packages:
+* nn
 * hdf5
 * nn  
 * nngraph
@@ -38,27 +44,43 @@ If running the character model, you should also install:
 * cudnn
 * luautf8
 
+Install these packages by running the following command from the project's root:
+```bash
+bash setup.sh
+```
+
+#### Cuda
+Setup the usage of cuda drivers by adding the following lines to your `~/.bashrc` file:
+```bash
+export CUDA_HOME=/usr/local/cuda-7.5 
+export LD_LIBRARY_PATH=${CUDA_HOME}/lib64 
+
+PATH=${CUDA_HOME}/bin:${PATH} 
+export PATH
+```
+where `/usr/local/cuda-7.5` is the path to your cuda driver files.
+
 ### Quickstart
 
 We are going to be working with some example data in `data/` folder.
-First run the data-processing code
+First run the data-processing code:
 
 ```
-python preprocess.py --srcfile data/src-train.txt --targetfile data/targ-train.txt
+python preprocess.py --srcfile data/src-train.txt --targetfile data/targ-train.txt \
 --srcvalfile data/src-val.txt --targetvalfile data/targ-val.txt --outputfile data/demo
 ```
 
 This will take the source/target train/valid files (`src-train.txt, targ-train.txt,
 src-val.txt, targ-val.txt`) and make some hdf5 files to be consumed by Lua.
 
-`demo.src.dict`: Dictionary of source vocab to index mappings.  
-`demo.targ.dict`: Dictionary of target vocab to index mappings.  
-`demo-train.hdf5`: hdf5 containing the train data.  
-`demo-val.hdf5`: hdf5 file containing the validation data.  
+`demo.src.dict`: Dictionary of source vocab to index mappings.
+`demo.targ.dict`: Dictionary of target vocab to index mappings.
+`demo-train.hdf5`: hdf5 containing the train data.
+`demo-val.hdf5`: hdf5 file containing the validation data.
 
 The `*.dict` files will be needed when predicting on new data.
 
-Now run the model
+Now run the model:
 
 ```
 th train.lua -data_file data/demo-train.hdf5 -val_data_file data/demo-val.hdf5 -savefile demo-model
@@ -67,11 +89,13 @@ This will run the default model, which consists of a 2-layer LSTM with 500 hidde
 on both the encoder/decoder.
 You can also add `-gpuid 1` to use (say) GPU 1 in the cluster.
 
-Now you have a model which you can use to predict on new data. To do this we are
-going to be running beam search
-
+Now you have a model which you can use to predict on new data. First convert your gpu-model to cpu-model:
 ```
-th beam.lua -model demo-model_final.t7 -src_file data/src-val.txt -output_file pred.txt 
+th convert_to_cpu.lua -gpu_file demo-model_final_gpu.t7 -cpu_file demo-model_final.t7
+```
+Then generate predictions by running beam search:
+```
+th beam.lua -model demo-model_final.t7 -src_file data/src-val.txt -output_file pred.txt \
 -src_dict data/demo.src.dict -targ_dict data/demo.targ.dict
 ```
 This will output predictions into `pred.txt`. The predictions are going to be quite terrible,
@@ -280,4 +304,4 @@ Our implementation utilizes code from the following:
 * [Element rnn library](https://github.com/Element-Research/rnn)
 
 #### Licence
-MIT
+[MIT](http://choosealicense.com/licenses/mit/)
