@@ -179,7 +179,7 @@ Below options only apply if using the character model.
 `(-param_init, param_init)`.
 * `adagrad`: If = 1, use AdaGrad.
 * `learning_rate`: Starting learning rate. If `adagrad` = 1, then this is the global
-adagrad learning rate.  
+adagrad learning rate. For `adagrad` try `learning_rate` values between 0.1 and 0.01.
 * `max_grad_norm`: If the norm of the gradient vector exceeds this, renormalize to have its norm equal to `max_grad_norm`.  
 * `dropout`: Dropout probability. Dropout is applied between vertical LSTM stacks.  
 * `lr_decay`: Decay learning rate by this much if (i) perplexity does not decrease on the validation
