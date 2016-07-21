@@ -43,7 +43,7 @@ cmd:option('-gpuid',  -1, [[ID of the GPU to use (-1 = use CPU)]])
 cmd:option('-gpuid2', -1, [[Second GPU ID]])
 cmd:option('-cudnn', 0, [[If using character model, this should be = 1 if the character model
                   was trained using cudnn]])
-opt = cmd:parse(arg)
+
 
 function copy(orig)
   local orig_type = type(orig)
@@ -490,6 +490,9 @@ function strip(s)
 end
 
 function main()
+  -- parse input params
+  opt = cmd:parse(arg)
+
   -- some globals
   PAD = 1; UNK = 2; START = 3; END = 4
   PAD_WORD = '<blank>'; UNK_WORD = '<unk>'; START_WORD = '<s>'; END_WORD = '</s>'
@@ -498,8 +501,6 @@ function main()
   assert(path.exists(opt.src_file), 'src_file does not exist')
   assert(path.exists(opt.model), 'model does not exist')
 
-  -- parse input params
-  opt = cmd:parse(arg)
   if opt.gpuid >= 0 then
     require 'cutorch'
     require 'cunn'
