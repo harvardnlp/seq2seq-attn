@@ -538,7 +538,37 @@ function translate(line)
   return pred_sent, nbests
 end
 
-function init(arg)
+function buildAbsolutePaths(resourcesDir)
+  local function isempty(s)
+    return s == nil or s == ''
+  end
+
+  if(not isempty(resourcesDir)) then
+    if not isempty(opt.model) then
+      opt.model = path.join(resourcesDir, opt.model)
+    end
+    if not isempty(opt.src_file) then
+      opt.src_file = path.join(resourcesDir, opt.src_file)
+    end
+    if not isempty(opt.targ_file) then
+      opt.targ_file = path.join(resourcesDir, opt.targ_file)
+    end
+    if not isempty(opt.output_file) then
+      opt.output_file = path.join(resourcesDir, opt.output_file)
+    end
+    if not isempty(opt.src_dict) then
+      opt.src_dict = path.join(resourcesDir, opt.src_dict)
+    end
+    if not isempty(opt.targ_dict) then
+      opt.targ_dict = path.join(resourcesDir, opt.targ_dict)
+    end
+    if not isempty(opt.char_dict) then
+      opt.char_dict = path.join(resourcesDir, opt.char_dict)
+    end
+  end
+end
+
+function init(arg, resourcesDir)
   for k, v in pairs( arg ) do
     print(k, v)
   end
@@ -551,6 +581,8 @@ function init(arg)
   PAD_WORD = '<blank>'; UNK_WORD = '<unk>'; START_WORD = '<s>'; END_WORD = '</s>'
   START_CHAR = '{'; END_CHAR = '}'
   MAX_SENT_L = opt.max_sent_l
+
+  buildAbsolutePaths(resourcesDir)
   assert(path.exists(opt.model), 'model does not exist')
 
   if opt.gpuid >= 0 then
