@@ -1,13 +1,13 @@
 require 'nn'
 require 'string'
-require 'hdf5'
 require 'nngraph'
 
-require 'models.lua'
-require 'data.lua'
-require 'util.lua'
+require 'models'
+require 'data'
+require 'util'
 
-stringx = require('pl.stringx')
+path = require 'pl.path'
+stringx = require 'pl.stringx'
 
 cmd = torch.CmdLine()
 

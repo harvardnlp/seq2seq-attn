@@ -2,14 +2,15 @@ require 'nn'
 require 'string'
 require 'hdf5'
 require 'nngraph'
-
-require 'models.lua'
-require 'data.lua'
-require 'util.lua'
 require 'cunn'
 require 'cutorch'
 
+require 'models'
+require 'data'
+require 'util'
+
 cmd = torch.CmdLine()
+
 -- file location
 cmd:option('-gpu_file', 'gpu_model.t7','gpu model file')
 cmd:option('-cpu_file', 'cpu_model.t7', 'cpu output file')
