@@ -115,9 +115,6 @@ cmd:option('-save_every', 1, [[Save every this many epochs]])
 cmd:option('-print_every', 50, [[Print stats after this many batches]])
 cmd:option('-seed', 3435, [[Seed for random initialization]])
 
-opt = cmd:parse(arg)
-torch.manualSeed(opt.seed)
-
 function zero_table(t)
   for i = 1, #t do
     if opt.gpuid >= 0 and opt.gpuid2 >= 0 then
@@ -766,6 +763,9 @@ end
 function main()
   -- parse input params
   opt = cmd:parse(arg)
+
+  torch.manualSeed(opt.seed)
+
   if opt.gpuid >= 0 then
     print('using CUDA on GPU ' .. opt.gpuid .. '...')
     if opt.gpuid2 >= 0 then
