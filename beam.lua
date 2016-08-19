@@ -483,7 +483,7 @@ end
 
 sent_id = 0
 
-function init()
+function init(arg)
   -- parse input params
   opt = cmd:parse(arg)
 
