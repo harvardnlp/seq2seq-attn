@@ -1,13 +1,15 @@
-require 'beam'
+local beam = require 's2sa.beam'
 
 function main()
-  init(arg)
+  beam.init(arg)
+  local opt = beam.getOptions()
+
   assert(path.exists(opt.src_file), 'src_file does not exist')
 
   local file = io.open(opt.src_file, "r")
   local out_file = io.open(opt.output_file,'w')
   for line in file:lines() do
-    result, nbests = translate(line)
+    result, nbests = beam.search(line)
     out_file:write(result .. '\n')
 
     for n = 1, #nbests do

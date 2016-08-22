@@ -5,9 +5,9 @@ require 'nngraph'
 require 'cunn'
 require 'cutorch'
 
-require 'models'
-require 'data'
-require 'util'
+require 's2sa.models'
+require 's2sa.data'
+require 's2sa.util'
 
 cmd = torch.CmdLine()
 
