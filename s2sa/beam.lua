@@ -2,14 +2,16 @@ require 'nn'
 require 'string'
 require 'nngraph'
 
-require 'models'
-require 'data'
-require 'util'
+require 's2sa.models'
+require 's2sa.data'
+require 's2sa.util'
 
 path = require 'pl.path'
 stringx = require 'pl.stringx'
 
-cmd = torch.CmdLine()
+local sent_id = 0
+local opt = {}
+local cmd = torch.CmdLine()
 
 -- file location
 cmd:option('-model', 'seq2seq_lstm_attn.t7.', [[Path to model .t7 file]])
@@ -481,8 +483,6 @@ function strip(s)
   return s:gsub("^%s+",""):gsub("%s+$","")
 end
 
-sent_id = 0
-
 function init(arg)
   -- parse input params
   opt = cmd:parse(arg)
@@ -621,7 +621,7 @@ function init(arg)
   sent_id = 0
 end
 
-function translate(line)
+function search(line)
   sent_id = sent_id + 1
   line = clean_sent(line)
   print('SENT ' .. sent_id .. ': ' ..line)
@@ -666,3 +666,13 @@ function translate(line)
 
   return pred_sent, nbests
 end
+
+function getOptions()
+  return opt
+end
+
+return {
+  init = init,
+  search = search,
+  getOptions = getOptions
+}
