@@ -7,7 +7,6 @@ require 'cutorch'
 
 require 's2sa.models'
 require 's2sa.data'
-require 's2sa.util'
 
 cmd = torch.CmdLine()
 
