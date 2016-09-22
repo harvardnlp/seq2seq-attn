@@ -316,7 +316,9 @@ def get_data(args):
                     target_l_max.append(max(target_l[batch_idx[i]-1:batch_idx[i+1]-1]))
     
                 # Write output
-                f = h5py.File(outfile, "w")
+                #f = h5py.File(outfile, "w")
+		f = h5py.File(outfile + '.' + str(shards) + '.hdf5', "w")
+
     
                 f["source"] = sources
                 f["target"] = targets
