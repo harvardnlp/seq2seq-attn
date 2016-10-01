@@ -80,9 +80,7 @@ function make_lstm(data, opt, model, use_chars)
       input_size_L = input_size
       if model == 'dec' then
         if opt.input_feed == 1 then
-          x = nn.JoinTable(2):usePrealloc("dec_inputfeed_join",
-                                          {{opt.max_batch_l, opt.word_vec_size},{opt.max_batch_l, opt.rnn_size}})
-                             ({x, inputs[1+offset]}) -- batch_size x (word_vec_size + rnn_size)
+          x = nn.JoinTable(2):usePrealloc("dec_inputfeed_join",{{opt.max_batch_l, opt.word_vec_size},{opt.max_batch_l, opt.rnn_size}})({x, inputs[1+offset]}) -- batch_size x (word_vec_size + rnn_size)
           input_size_L = input_size_L + rnn_size
         end
       else
@@ -100,29 +98,16 @@ function make_lstm(data, opt, model, use_chars)
         x = multi_attn({x, inputs[2]})
       end
       if dropout > 0 then
-        x = nn.Dropout(dropout, nil, false):usePrealloc(nameL.."dropout",
-                                                        {{opt.max_batch_l, input_size_L}})
-                                           (x)
+        x = nn.Dropout(dropout, nil, false):usePrealloc(nameL.."dropout",{{opt.max_batch_l, input_size_L}})(x)
       end
     end
     -- evaluate the input sums at once for efficiency
-    local i2h = nn.Linear(input_size_L, 4 * rnn_size):usePrealloc(nameL.."i2h-reuse",
-                                                                  {{opt.max_batch_l, input_size_L}},
-                                                                  {{opt.max_batch_l, 4 * rnn_size}})
-                                                     (x)
-    local h2h = nn.Linear(rnn_size, 4 * rnn_size, false):usePrealloc(nameL.."h2h-reuse",
-                                                                     {{opt.max_batch_l, rnn_size}},
-                                                                     {{opt.max_batch_l, 4 * rnn_size}})
-                                                        (prev_h)
-    local all_input_sums = nn.CAddTable():usePrealloc(nameL.."allinput",
-                                                      {{opt.max_batch_l, 4*rnn_size},{opt.max_batch_l, 4*rnn_size}},
-                                                      {{opt.max_batch_l, 4 * rnn_size}})
-                                         ({i2h, h2h})
+    local i2h = nn.Linear(input_size_L, 4 * rnn_size):usePrealloc(nameL.."i2h-reuse",{{opt.max_batch_l, input_size_L}},{{opt.max_batch_l, 4 * rnn_size}})(x)
+    local h2h = nn.Linear(rnn_size, 4 * rnn_size, false):usePrealloc(nameL.."h2h-reuse",{{opt.max_batch_l, rnn_size}},{{opt.max_batch_l, 4 * rnn_size}})(prev_h)
+    local all_input_sums = nn.CAddTable():usePrealloc(nameL.."allinput",{{opt.max_batch_l, 4*rnn_size},{opt.max_batch_l, 4*rnn_size}},{{opt.max_batch_l, 4 * rnn_size}})({i2h, h2h})
 
     local reshaped = nn.Reshape(4, rnn_size)(all_input_sums)
-    local n1, n2, n3, n4 = nn.SplitTable(2):usePrealloc(nameL.."reshapesplit",
-                                                        {{opt.max_batch_l, 4, rnn_size}})
-                                           (reshaped):split(4)
+    local n1, n2, n3, n4 = nn.SplitTable(2):usePrealloc(nameL.."reshapesplit",{{opt.max_batch_l, 4, rnn_size}})(reshaped):split(4)
     -- decode the gates
     local in_gate = nn.Sigmoid():usePrealloc(nameL.."G1-reuse",{RnnD})(n1)
     local forget_gate = nn.Sigmoid():usePrealloc(nameL.."G2-reuse",{RnnD})(n2)
@@ -135,8 +120,7 @@ function make_lstm(data, opt, model, use_chars)
         nn.CMulTable():usePrealloc(nameL.."G5c",{RnnD,RnnD})({in_gate, in_transform})
       })
     -- gated cells form the output
-    local next_h = nn.CMulTable():usePrealloc(nameL.."G5d",{RnnD,RnnD})
-                                 ({out_gate, nn.Tanh():usePrealloc(nameL.."G6-reuse",{RnnD})(next_c)})
+    local next_h = nn.CMulTable():usePrealloc(nameL.."G5d",{RnnD,RnnD})({out_gate, nn.Tanh():usePrealloc(nameL.."G6-reuse",{RnnD})(next_c)})
 
     table.insert(outputs, next_c)
     table.insert(outputs, next_h)
@@ -158,8 +142,7 @@ function make_lstm(data, opt, model, use_chars)
       decoder_out = nn.Tanh()(nn.Linear(opt.rnn_size*2, opt.rnn_size, false)(decoder_out))
     end
     if dropout > 0 then
-      decoder_out = nn.Dropout(dropout, nil, false):usePrealloc("dec_dropout",{RnnD})
-                                                   (decoder_out)
+      decoder_out = nn.Dropout(dropout, nil, false):usePrealloc("dec_dropout",{RnnD})(decoder_out)
     end
     table.insert(outputs, decoder_out)
     if opt.guided_alignment == 1 then
@@ -181,10 +164,7 @@ function make_decoder_attn(data, opt, simple)
   simple = simple or 0
   -- get attention
 
-  local attn = nn.MM():usePrealloc("dec_attn_mm1",
-                                   {{opt.max_batch_l, opt.max_sent_l_src, opt.rnn_size},{opt.rnn_size, opt.rnn_size, 1}},
-                                   {{opt.max_batch_l, opt.max_sent_l_src, 1}})
-                      ({context, nn.Replicate(1,3)(target_t)}) -- batch_l x source_l x 1
+  local attn = nn.MM():usePrealloc("dec_attn_mm1",{{opt.max_batch_l, opt.max_sent_l_src, opt.rnn_size},{opt.rnn_size, opt.rnn_size, 1}},{{opt.max_batch_l, opt.max_sent_l_src, 1}})({context, nn.Replicate(1,3)(target_t)}) -- batch_l x source_l x 1
   attn = nn.Sum(3)(attn)
   local softmax_attn = nn.SoftMax()
   softmax_attn.name = 'softmax_attn'
@@ -196,27 +176,14 @@ function make_decoder_attn(data, opt, simple)
   attn = nn.Replicate(1,2)(attn) -- batch_l x 1 x source_l
 
   -- apply attention to context
-  local context_combined = nn.MM():usePrealloc("dec_attn_mm2",
-                                               {{opt.max_batch_l, 1, opt.max_sent_l_src},{opt.max_batch_l, opt.max_sent_l_src, opt.rnn_size}},
-                                               {{opt.max_batch_l, 1, opt.rnn_size}})
-                                  ({attn, context}) -- batch_l x 1 x rnn_size
-  context_combined = nn.Sum(2):usePrealloc("dec_attn_sum",
-                                           {{opt.max_batch_l, 1, opt.rnn_size}},
-                                           {{opt.max_batch_l, opt.rnn_size}})
-                              (context_combined) -- batch_l x rnn_size
+  local context_combined = nn.MM():usePrealloc("dec_attn_mm2",{{opt.max_batch_l, 1, opt.max_sent_l_src},{opt.max_batch_l, opt.max_sent_l_src, opt.rnn_size}},{{opt.max_batch_l, 1, opt.rnn_size}})({attn, context}) -- batch_l x 1 x rnn_size
+  context_combined = nn.Sum(2):usePrealloc("dec_attn_sum",{{opt.max_batch_l, 1, opt.rnn_size}},{{opt.max_batch_l, opt.rnn_size}})(context_combined) -- batch_l x rnn_size
   local context_output
   if simple == 0 then
-    context_combined = nn.JoinTable(2):usePrealloc("dec_attn_jointable",
-                                                   {{opt.max_batch_l,opt.rnn_size},{opt.max_batch_l, opt.rnn_size}})
-                                      ({context_combined, inputs[1]}) -- batch_l x rnn_size*2
-    context_output = nn.Tanh():usePrealloc("dec_attn_tanh",{{opt.max_batch_l,opt.rnn_size}})
-                              (nn.Linear(opt.rnn_size*2,opt.rnn_size,false):usePrealloc("dec_attn_linear",
-                                                                                        {{opt.max_batch_l,2*opt.rnn_size}})
-                                                                           (context_combined))
+    context_combined = nn.JoinTable(2):usePrealloc("dec_attn_jointable",{{opt.max_batch_l,opt.rnn_size},{opt.max_batch_l, opt.rnn_size}})({context_combined, inputs[1]}) -- batch_l x rnn_size*2
+    context_output = nn.Tanh():usePrealloc("dec_attn_tanh",{{opt.max_batch_l,opt.rnn_size}})(nn.Linear(opt.rnn_size*2,opt.rnn_size,false):usePrealloc("dec_attn_linear",{{opt.max_batch_l,2*opt.rnn_size}})(context_combined))
   else
-    context_output = nn.CAddTable():usePrealloc("dec_attn_caddtable1",
-                                                {{opt.max_batch_l, opt.rnn_size}, {opt.max_batch_l, opt.rnn_size}})
-                                   ({context_combined,inputs[1]})
+    context_output = nn.CAddTable():usePrealloc("dec_attn_caddtable1",{{opt.max_batch_l, opt.rnn_size}, {opt.max_batch_l, opt.rnn_size}})({context_combined,inputs[1]})
   end
   if opt.guided_alignment == 1 then
     return nn.gModule(inputs, {context_output, attn_output})
