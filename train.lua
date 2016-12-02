@@ -633,20 +633,23 @@ function train(train_data, valid_data)
       if opt.fix_word_vecs_enc == 1 then
         word_vec_layers[1].gradWeight:zero()
       end
+      
+      if opt.brnn == 1 then 
+        word_vec_layers[1].gradWeight:add(word_vec_layers[3].gradWeight)
+        if opt.use_chars_enc == 1 then
+          for j = 1, charcnn_offset do
+            charcnn_grad_layers[j]:add(charcnn_grad_layers[j+charcnn_offset])
+	    charcnn_grad_layers[j+charcnn_offset]:zero()
+          end
+        end
+	word_vec_layers[3].gradWeight:zero()
+      end
 
       grad_norm = grad_norm + grad_params[1]:norm()^2
       if opt.brnn == 1 then
         grad_norm = grad_norm + grad_params[4]:norm()^2
       end
       grad_norm = grad_norm^0.5
-      if opt.brnn == 1 then
-        word_vec_layers[1].gradWeight:add(word_vec_layers[3].gradWeight)
-        if opt.use_chars_enc == 1 then
-          for j = 1, charcnn_offset do
-            charcnn_grad_layers[j]:add(charcnn_grad_layers[j+charcnn_offset])
-          end
-        end
-      end
       -- Shrink norm and update params
       local param_norm = 0
       local shrinkage = opt.max_grad_norm / grad_norm
