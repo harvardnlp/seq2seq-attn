@@ -727,6 +727,7 @@ function train(train_data, valid_data)
     if opt.num_shards > 0 then
       total_loss = 0
       total_nonzeros = 0
+      total_loss_cll = 0
       local shard_order = torch.randperm(opt.num_shards)
       for s = 1, opt.num_shards do
         local fn = train_data .. '.' .. shard_order[s] .. '.hdf5'
