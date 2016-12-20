@@ -1,6 +1,6 @@
 ## Sequence-to-Sequence Learning with Attentional Neural Networks
 
-UPDATE: Check-out the beta release of <a href="http://opennmt.net">OpenNMT</a> a fully supported feature-complete rewrite of seq2seq-attn. Seq2seq-attn will remain supported, but new features and optimizations will focus on the new codebase. 
+**UPDATE: Check-out the beta release of <a href="http://opennmt.net">OpenNMT</a> a fully supported feature-complete rewrite of seq2seq-attn. Seq2seq-attn will remain supported, but new features and optimizations will focus on the new codebase. **
 
 [Torch](http://torch.ch) implementation of a standard sequence-to-sequence model with (optional)
 attention where the encoder-decoder are LSTMs. Encoder can be a bidirectional LSTM.
