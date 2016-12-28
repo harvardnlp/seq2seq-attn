@@ -951,6 +951,8 @@ function main()
     print('using CUDA on GPU ' .. opt.gpuid .. '...')
     if opt.gpuid2 >= 0 then
       print('using CUDA on second GPU ' .. opt.gpuid2 .. '...')
+      -- Disable cross-GPU checks
+      cutorch.setKernelPeerToPeerAccess(true)
     end
     require 'cutorch'
     require 'cunn'
