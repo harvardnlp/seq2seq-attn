@@ -32,7 +32,6 @@ See below for more details on how to use them.
 
 This project is maintained by [Yoon Kim](http://people.fas.harvard.edu/~yoonkim).
 Feel free to post any questions/issues on the issues page.
-
 ### Dependencies
 
 #### Python
@@ -181,7 +180,7 @@ For seq2seq I've found vanilla SGD to work well but feel free to experiment.
 * `learning_rate`: Starting learning rate. For 'adagrad', 'adadelta', and 'adam', this is the global
 learning rate. Recommended settings vary based on `optim`: sgd (`learning_rate = 1`), adagrad
 (`learning_rate = 0.1`), adadelta (`learning_rate = 1`), adam (`learning_rate = 0.1`).
-* `layer_lrs`: Comma-separated learning rates for encoder, decoder, and generator when using 'adagrad', 'adadelta', or 'adam' for 'optim' option. Layer-specific learning rates cannot currently be used with sgd. 
+* `layer_lrs`: Comma-separated learning rates for encoder, decoder, and generator when using 'adagrad', 'adadelta', or 'adam' for 'optim' option. Layer-specific learning rates cannot currently be used with sgd.
 * `max_grad_norm`: If the norm of the gradient vector exceeds this, renormalize to have its norm equal to `max_grad_norm`.
 * `dropout`: Dropout probability. Dropout is applied between vertical LSTM stacks.
 * `lr_decay`: Decay learning rate by this much if (i) perplexity does not decrease on the validation

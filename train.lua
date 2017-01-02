@@ -946,7 +946,7 @@ function main()
   -- parse input params
   opt = cmd:parse(arg)
 
-  torch.manualSeed(opt.seed);
+  torch.manualSeed(opt.seed)
 
   if opt.gpuid >= 0 then
     print('using CUDA on GPU ' .. opt.gpuid .. '...')
