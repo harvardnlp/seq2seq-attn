@@ -414,7 +414,10 @@ function idx2key(file)
     for w in line:gmatch'([^%s]+)' do
       table.insert(c, w)
     end
-    t[tonumber(c[2])] = c[1]
+    t_index = tonumber(c[2])
+    if t_index ~= nil then
+       t[t_index] = c[1]
+    end
   end
   return t
 end
