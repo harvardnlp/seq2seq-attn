@@ -82,6 +82,7 @@ cmd:option('-optim', 'sgd', [[Optimization method. Possible options are: sgd (va
 cmd:option('-learning_rate', 1, [[Starting learning rate. If adagrad/adadelta/adam is used,
                                 then this is the global learning rate. Recommended settings: sgd =1,
                                 adagrad = 0.1, adadelta = 1, adam = 0.1]])
+cmd:option('-layer_lrs', '', [[Comma-separated learning rates for encoder, decoder, and generator. Only used if optim ~= sgd.]])
 cmd:option('-max_grad_norm', 5, [[If the norm of the gradient vector exceeds this renormalize it to have the norm equal to max_grad_norm]])
 cmd:option('-dropout', 0.3, [[Dropout probability. Dropout is applied between vertical LSTM stacks.]])
 cmd:option('-lr_decay', 0.5, [[Decay learning rate by this much if (i) perplexity does not decrease
@@ -634,19 +635,22 @@ function train(train_data, valid_data)
         word_vec_layers[1].gradWeight:zero()
       end
 
-      grad_norm = grad_norm + grad_params[1]:norm()^2
-      if opt.brnn == 1 then
-        grad_norm = grad_norm + grad_params[4]:norm()^2
-      end
-      grad_norm = grad_norm^0.5
       if opt.brnn == 1 then
         word_vec_layers[1].gradWeight:add(word_vec_layers[3].gradWeight)
         if opt.use_chars_enc == 1 then
           for j = 1, charcnn_offset do
             charcnn_grad_layers[j]:add(charcnn_grad_layers[j+charcnn_offset])
+	    charcnn_grad_layers[j+charcnn_offset]:zero()
           end
         end
+	word_vec_layers[3].gradWeight:zero()
       end
+
+      grad_norm = grad_norm + grad_params[1]:norm()^2
+      if opt.brnn == 1 then
+        grad_norm = grad_norm + grad_params[4]:norm()^2
+      end
+      grad_norm = grad_norm^0.5
       -- Shrink norm and update params
       local param_norm = 0
       local shrinkage = opt.max_grad_norm / grad_norm
@@ -724,6 +728,7 @@ function train(train_data, valid_data)
     if opt.num_shards > 0 then
       total_loss = 0
       total_nonzeros = 0
+      total_loss_cll = 0
       local shard_order = torch.randperm(opt.num_shards)
       for s = 1, opt.num_shards do
         local fn = train_data .. '.' .. shard_order[s] .. '.hdf5'
@@ -1031,8 +1036,23 @@ function main()
   if opt.optim ~= 'sgd' then
     layer_etas = {}
     optStates = {}
+
+    if opt.layer_lrs:len() > 0 then
+      local stringx = require('pl.stringx')
+      local lr_strings = stringx.split(opt.layer_lrs, ',')
+      if #lr_strings ~= #layers then error('1 learning rate per layer expected') end
+      for i = 1, #lr_strings do
+        local lr = tonumber(stringx.strip(lr_strings[i]))
+        if not lr then
+          error(string.format('malformed learning rate: %s', lr_strings[i]))
+        else
+          layer_etas[i] = lr
+        end
+      end
+    end
+
     for i = 1, #layers do
-      layer_etas[i] = opt.learning_rate -- can have layer-specific lr, if desired
+      layer_etas[i] = layer_etas[i] or opt.learning_rate
       optStates[i] = {}
     end
   end

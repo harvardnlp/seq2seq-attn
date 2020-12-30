@@ -1,5 +1,7 @@
 ## Sequence-to-Sequence Learning with Attentional Neural Networks
 
+**UPDATE: Check-out the beta release of <a href="http://opennmt.net">OpenNMT</a> a fully supported feature-complete rewrite of seq2seq-attn. Seq2seq-attn will remain supported, but new features and optimizations will focus on the new codebase.**
+
 [Torch](http://torch.ch) implementation of a standard sequence-to-sequence model with (optional)
 attention where the encoder-decoder are LSTMs. Encoder can be a bidirectional LSTM.
 Additionally has the option to use characters
@@ -15,7 +17,7 @@ Luong et al. EMNLP 2015. We use the *global-general-attention* model with the
 The character model is from [Character-Aware Neural
 Language Models](http://arxiv.org/abs/1508.06615), Kim et al. AAAI 2016.
 
-There are a lot of additional options on top of the baseline model, mainly thanks to the fantastic folks 
+There are a lot of additional options on top of the baseline model, mainly thanks to the fantastic folks
 at [SYSTRAN](http://www.systransoft.com). Specifically, there are functionalities which implement:
 * [Effective Approaches to Attention-based Neural Machine Translation](http://stanford.edu/~lmthang/data/papers/emnlp15_attn.pdf). Luong et al., EMNLP 2015.
 * [Character-based Neural Machine Translation](https://aclweb.org/anthology/P/P16/P16-2058.pdf). Costa-Jussa and Fonollosa, ACL 2016.
@@ -30,7 +32,6 @@ See below for more details on how to use them.
 
 This project is maintained by [Yoon Kim](http://people.fas.harvard.edu/~yoonkim).
 Feel free to post any questions/issues on the issues page.
- 
 ### Dependencies
 
 #### Python
@@ -179,6 +180,7 @@ For seq2seq I've found vanilla SGD to work well but feel free to experiment.
 * `learning_rate`: Starting learning rate. For 'adagrad', 'adadelta', and 'adam', this is the global
 learning rate. Recommended settings vary based on `optim`: sgd (`learning_rate = 1`), adagrad
 (`learning_rate = 0.1`), adadelta (`learning_rate = 1`), adam (`learning_rate = 0.1`).
+* `layer_lrs`: Comma-separated learning rates for encoder, decoder, and generator when using 'adagrad', 'adadelta', or 'adam' for 'optim' option. Layer-specific learning rates cannot currently be used with sgd.
 * `max_grad_norm`: If the norm of the gradient vector exceeds this, renormalize to have its norm equal to `max_grad_norm`.
 * `dropout`: Dropout probability. Dropout is applied between vertical LSTM stacks.
 * `lr_decay`: Decay learning rate by this much if (i) perplexity does not decrease on the validation

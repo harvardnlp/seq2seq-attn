@@ -198,7 +198,7 @@ def get_data(args):
                     if source_lengths[i] > curr_l:
                         curr_l = source_lengths[i]
                         l_location.append(j+1)
-                l_location.append(len(sources))
+                l_location.append(len(sources)+1)
 
                 #get batch sizes
                 curr_idx = 1
